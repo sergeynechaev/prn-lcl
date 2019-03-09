@@ -6,13 +6,13 @@ const runCmd = args => {
       reject('No arguments were given');
     }
 
-    const commandExecuter = spawn('git', args);
+    const cmd = spawn('git', args);
     let stdOutData = '';
     let stderrData = '';
 
-    commandExecuter.stdout.on('data', data => (stdOutData += data));
-    commandExecuter.stderr.on('data', data => (stderrData += data));
-    commandExecuter.on('close', code =>
+    cmd.stdout.on('data', data => (stdOutData += data));
+    cmd.stderr.on('data', data => (stderrData += data));
+    cmd.on('close', code =>
       code != 0
         ? reject(stderrData.toString())
         : resolve(stdOutData.toString()),
@@ -20,12 +20,31 @@ const runCmd = args => {
   });
 };
 
-const listLocalBranches = async () => {
-  console.log('listLocalBranches');
+const getLocalBranches = async () => {
   return await runCmd(['branch']);
+};
+
+const getLocalTrackableBranches = async () => {
+  return await runCmd(['branch', '-vv']);
+};
+
+const getRemoteBranches = async () => {
+  return await runCmd(['branch', '-r']);
+};
+
+const remotePruneOrigin = async () => {
+  return await runCmd(['remote', 'prune', 'origin']);
+};
+
+const fetchPrune = async () => {
+  return await runCmd(['fetch', '--prune']);
 };
 
 module.exports = {
   runCmd,
-  listLocalBranches,
+  getLocalBranches,
+  getLocalTrackableBranches,
+  getRemoteBranches,
+  remotePruneOrigin,
+  fetchPrune,
 };
