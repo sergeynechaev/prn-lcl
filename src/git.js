@@ -21,15 +21,36 @@ const runCmd = args => {
 };
 
 const getLocalBranches = async () => {
-  return await runCmd(['branch']);
+  const res = await runCmd(['branch']);
+  if (!res) return [];
+  return res
+    .split('\n')
+    .filter(l => l)
+    .map(l => l.replace('*', '').trim());
 };
 
 const getLocalTrackableBranches = async () => {
-  return await runCmd(['branch', '-vv']);
+  const res = await runCmd(['branch', '-vv']);
+  if (!res) return [];
+  return res
+    .split('\n')
+    .filter(l => /origin\//.test(l))
+    .map(
+      l =>
+        l
+          .replace('*', '')
+          .trim()
+          .split(' ')[0],
+    );
 };
 
 const getRemoteBranches = async () => {
-  return await runCmd(['branch', '-r']);
+  const res = await runCmd(['branch', '-r']);
+  if (!res) return [];
+  return res
+    .split('\n')
+    .filter(l => l)
+    .map(l => l.replace('origin/', '').trim());
 };
 
 const remotePruneOrigin = async () => {
@@ -40,6 +61,12 @@ const fetchPrune = async () => {
   return await runCmd(['fetch', '--prune']);
 };
 
+const deleteBranches = async branches => {
+  if (!branches) return Promise.resolve();
+  if (!Array.isArray(branches)) branches = [branches];
+  return await runCmd(['branch', '-d', ...branches]);
+};
+
 module.exports = {
   runCmd,
   getLocalBranches,
@@ -47,4 +74,5 @@ module.exports = {
   getRemoteBranches,
   remotePruneOrigin,
   fetchPrune,
+  deleteBranches,
 };

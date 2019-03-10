@@ -4,35 +4,60 @@ const figlet = require('figlet');
 const clui = require('clui');
 
 const git = require('./src/git');
+const ask = require('./src/ask');
 
 const run = async () => {
   clear();
 
   console.log(
-    chalk.green(figlet.textSync('prn-lcl', { horizontalLayout: 'full' })),
+    chalk.green(figlet.textSync('prn-lcl', { horizontalLayout: 'fitted' })),
   );
-  console.log('You are about to prune these local branches');
+  console.log('');
 
   const spinner = new clui.Spinner('Pruning remote branches...');
+
+  spinner.start();
+  await git.remotePruneOrigin();
+  spinner.stop();
+
+  spinner.message('Compare local and remotes branches...');
   spinner.start();
 
-  await git.remotePruneOrigin();
   await git.fetchPrune();
+  const localTrackable = await git.getLocalTrackableBranches();
+  const remoteBr = await git.getRemoteBranches();
 
   spinner.message('');
   spinner.stop();
 
-  const localBr = await git.getLocalBranches();
-  console.log('localBr');
-  console.log(localBr);
-
-  const remoteBr = await git.getRemoteBranches();
   console.log('remoteBr');
   console.log(remoteBr);
 
-  const localTrackable = await git.getLocalTrackableBranches();
   console.log('localTrackable');
   console.log(localTrackable);
+
+  const toDelete = localTrackable.filter(b => remoteBr.indexOf(b) === -1);
+  console.log('Branches to delete');
+  console.log(toDelete);
+
+  if (!toDelete.length) {
+    console.log(chalk.green('There in nothing to delete, exiting.'));
+    return 0;
+  }
+
+  const selected = await ask.brachesToDelete(toDelete);
+  if (!selected.toDelete.length) {
+    console.log(chalk.green('Nothing was selected, exiting.'));
+    return 0;
+  }
+
+  const confirm = await ask.confirmDelete(selected.toDelete);
+  if (!confirm.delete) {
+    console.log(chalk.green("It's up to you, exiting."));
+    return 0;
+  }
+
+  console.log('Selected to delete:', selected.toDelete);
 };
 
 run().catch(err => console.error('An error occured:', err));
