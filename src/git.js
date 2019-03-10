@@ -20,15 +20,6 @@ const runCmd = args => {
   });
 };
 
-const getLocalBranches = async () => {
-  const res = await runCmd(['branch']);
-  if (!res) return [];
-  return res
-    .split('\n')
-    .filter(l => l)
-    .map(l => l.replace('*', '').trim());
-};
-
 const getLocalTrackableBranches = async () => {
   const res = await runCmd(['branch', '-vv']);
   if (!res) return [];
@@ -69,7 +60,6 @@ const deleteBranches = async branches => {
 
 module.exports = {
   runCmd,
-  getLocalBranches,
   getLocalTrackableBranches,
   getRemoteBranches,
   remotePruneOrigin,

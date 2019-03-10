@@ -30,15 +30,7 @@ const run = async () => {
   spinner.message('');
   spinner.stop();
 
-  console.log('remoteBr');
-  console.log(remoteBr);
-
-  console.log('localTrackable');
-  console.log(localTrackable);
-
   const toDelete = localTrackable.filter(b => remoteBr.indexOf(b) === -1);
-  console.log('Branches to delete');
-  console.log(toDelete);
 
   if (!toDelete.length) {
     console.log(chalk.green('There in nothing to delete, exiting.'));
