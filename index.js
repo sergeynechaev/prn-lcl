@@ -23,13 +23,16 @@ const run = async () => {
   spinner.stop();
 
   const localBr = await git.getLocalBranches();
-  console.log('localBr', localBr);
+  console.log('localBr');
+  console.log(localBr);
 
   const remoteBr = await git.getRemoteBranches();
-  console.log('remoteBr', remoteBr);
+  console.log('remoteBr');
+  console.log(remoteBr);
 
   const localTrackable = await git.getLocalTrackableBranches();
-  console.log('localTrackable', localTrackable);
+  console.log('localTrackable');
+  console.log(localTrackable);
 };
 
 run().catch(err => console.error('An error occured:', err));
